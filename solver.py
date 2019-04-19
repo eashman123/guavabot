@@ -1,4 +1,5 @@
 import networkx as nx
+from networkx.algorithms import approximation
 from matplotlib import pyplot as plt
 import random, heapq
 
@@ -41,10 +42,45 @@ class Move:
         self.bot_locations = bot_locations
 
     def move(self): #moves all bots to home
+        paths = self.compare()()
+        for path in paths:
+            self.client.remote(path[0], path[1])
+
+    def naive_path(self): #returns a list of remotes
+        rem = []
         for vert in self.bot_locations:
-            path = nx.shortest_path(self.g, vert, self.home, weight="weight")
-            for i in range(len(path)-1):
-                print(self.client.remote(path[i], path[i+1]))
+            s = nx.shortest_path(self.g, vert, self.home, weight="weight")
+            for i in range(len(s)-1):
+                rem.append([s[i], s[i+1]])
+        return rem
+
+    def shared_path(self): #returns a list of remotes
+        s = approximation.steiner_tree(self.g, self.bot_locations + [self.home])
+        unop = []
+        for vert in self.bot_locations:
+            sh = nx.shortest_path(s, vert, self.home, weight="weight")
+            for i in range(len(sh)-1):
+                unop.append([sh[i], sh[i+1]])
+        rem=[]
+        for i in range(len(unop)):
+            if unop[i] not in unop[i+1:]:
+                rem.append(unop[i])
+        return rem
+
+    def compare(self):
+        shared = float('inf')
+        shared = self.shared_cost()
+        naive = self.naive_cost()
+        print(naive, shared)
+        return self.shared_path if shared<naive else self.naive_path
+
+    def naive_cost(self):
+        return sum([nx.shortest_path_length(self.g, vert, self.home, weight="weight") for vert in self.bot_locations])
+
+    def shared_cost(self):
+        rem = self.shared_path()
+        return sum([self.g[r[0]][r[1]]["weight"] for r in rem])
+
 
 
 def bookkeeping(client):
