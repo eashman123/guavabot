@@ -30,7 +30,7 @@ class Locate:
         scouted = self.scouting()
         bots_left = self.num_bots
         bot_locs = set()
-        bot_count = {v:0 for v in self.vertices}
+        bot_count = {v:0 for v in self.vertices+[self.client.home]}
         for u in scouted:
             v = self.cheapest_edge(u)[1]
             resp = self.client.remote(u, v)
