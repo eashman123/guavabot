@@ -1,7 +1,6 @@
 import networkx as nx
 from networkx.algorithms import approximation
-from matplotlib import pyplot as plt
-import random, heapq
+import random
 
 def solve(client):
     client.end()
@@ -14,23 +13,60 @@ def solve(client):
     rem = Move(client, bot_locations)
     rem.move()
 
-    bookkeeping(client)
+    # bookkeeping(client)
     #Our code end
     client.end()
 
 class Locate:
     def __init__(self, client):
         self.client = client
+        self.g = client.graph
         self.all_students = list(range(1, client.students + 1))
         self.num_bots = client.bots
         self.vertices = list(range(1, client.home)) + list(range(client.home + 1, client.v + 1)) #non home vertices
+        self.test_size = min(client.students, 10)
 
-    def find(self): #Returns list of vertices that the bots are likely on
+    def find(self):
+        scouted = self.scouting()
+        bots_left = self.num_bots
+        bot_locs = set()
+        bot_count = {v:0 for v in self.vertices}
+        for u in scouted:
+            v = self.cheapest_edge(u)[1]
+            resp = self.client.remote(u, v)
+            if resp>0:
+                bot_locs.add(v)
+                if u in bot_locs:
+                    bot_locs.remove(u)
+                if resp>bot_count[u]:
+                    bots_left-=resp-bot_count[u]
+                bot_count[u]=0
+                bot_count[v]+=resp
+            if bots_left==0:
+                break
+        return list(bot_locs)
+
+    def scouting(self): #Returns list of vertices that the bots are likely on
         bot_resp = {}
         for vert in self.vertices:
-            r = self.client.scout(vert, self.all_students)
+            r = self.client.scout(vert, random.choices(self.all_students, k=self.test_size))
             bot_resp[vert] = list(r.values()).count(True)
-        return heapq.nlargest(int(self.num_bots*1.5), bot_resp, key = bot_resp.get)
+        return sorted(bot_resp, key=bot_resp.get, reverse=True)
+        # return heapq.nlargest(int(self.num_bots*1.5), bot_resp, key = bot_resp.get)
+
+    def cheapest_edge(self, vertex):
+        adj = self.g.edges(vertex)
+        min=float('inf')
+        edge=()
+        for (u,v) in adj:
+            try:
+                weight = self.g.edges[u,v]['weight']
+            except:
+                continue
+            if weight<min:
+                min = weight
+                edge = (u,v)
+        return edge
 
 
 class Move:
@@ -38,7 +74,6 @@ class Move:
         self.client=client
         self.home = client.home
         self.g = client.graph
-        self.vertices = list(range(1, client.home)) + list(range(client.home + 1, client.v + 1))
         self.bot_locations = bot_locations
 
     def move(self): #moves all bots to home
@@ -68,10 +103,8 @@ class Move:
         return rem
 
     def compare(self):
-        shared = float('inf')
         shared = self.shared_cost()
         naive = self.naive_cost()
-        print(naive, shared)
         return self.shared_path if shared<naive else self.naive_path
 
     def naive_cost(self):
@@ -85,6 +118,7 @@ class Move:
 
 def bookkeeping(client):
     print("Time taken: " + str(client.time))
+    print(client.bots)
     return
     print(client.cant_scout)
     print(client.bot_count)
