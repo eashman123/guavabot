@@ -1,8 +1,8 @@
 import networkx as nx
 from networkx.algorithms import approximation
 import random
-# must explain why we used this
 import copy
+import math
 
 def solve(client):
     client.end()
@@ -34,8 +34,10 @@ class Locate:
         self.distribution = {}
 
         #important stats choices
-        self.epsilon = 0.4
-        self.proportion_of_testing = 0.85
+        # explain why we used math library
+        self.proportion_of_testing = 0.82
+        #self.epsilon = math.sqrt(math.log(self.num_students) / int(len(self.vertices) * self.proportion_of_testing))
+        self.epsilon = math.sqrt(math.log(self.num_students) / len(self.vertices))
 
         self.num_students_to_consider = min(5, int(self.num_students / 2))
         self.threshold_to_call_remote = 0.6
@@ -74,12 +76,15 @@ class Locate:
                 self.update_mw(loss_dict)
                 num_of_remote_calls -= 1
             else:
-                # explain why I used copy.deepcopy
                 vertex_data = self.scouting_data.get(u)
-                students_by_descending_weights = sorted(self.weights, key=self.weights.get, reverse=True)
+
+                #should I define this sorted list once or every iteration? every iteration is more 
+                # accurate but slower
+                #students_by_descending_weights = sorted(self.weights, key=self.weights.get, reverse=True)
 
                 num_of_true = 0
                 for i in range(self.num_students_to_consider):
+                    students_by_descending_weights = sorted(self.weights, key=self.weights.get, reverse=True)
                     if vertex_data.get(students_by_descending_weights[i]) == True:
                         num_of_true += 1
 
@@ -161,6 +166,7 @@ class Locate:
         sum_of_weights = 0
 
         for key in loss_dict.keys():
+            #take care of 0^0 case
             new_weight = float(self.weights.get(key) * ((1 - self.epsilon) ** loss_dict.get(key)))
             self.weights[key] = new_weight
 
