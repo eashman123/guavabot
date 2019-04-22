@@ -59,8 +59,8 @@ class Locate:
         del self.bot_resp[u]
         flag = self.run_remote(u)
         for student, resp in student_resp.items():
-            if resp == flag:
-                self.all_students[student]* 1-self.epsilon
+            if resp != flag:
+                self.all_students[student] *= 1-self.epsilon
 
     def run_remote(self, u):
         v = self.cheapest_edge(u)[1]
@@ -78,8 +78,8 @@ class Locate:
 
     def set_test_size(self, num_students, default=10):
         v = len(self.vertices)
-        # return [min(10, num_students) for _ in range(v)]
-        interval = (num_students-min(10, num_students/2))/v
+        return [min(10, num_students) for _ in range(v)]
+        # interval = (num_students-min(10, num_students/2))/v
         c = min(10, num_students/2)
         l = []
         for _ in range(v):
