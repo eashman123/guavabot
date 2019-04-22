@@ -23,10 +23,16 @@ def compare(total_tests, solver1, solver2):
     print("D Average: " + str(mean1-mean2))
     print("D Standard Deviation: " + str(dstdev))
 
+def oprtimize_mw(solver):
+    #https://wiki.python.org/moin/UsingPickle - have solver load values from file, edit file in between iterations
+    if (solver=='emw_solver'):
+        pass
+    if solver=='mw_solver':
+        pass
 
 if __name__=="__main__":
     arguments = sys.argv
-    mapping = {'test':test, 'compare':compare}
+    mapping = {'test':test, 'compare':compare, 'optimize_mw':oprtimize_mw}
     f = mapping[arguments.pop(1)]
     if len(arguments)==2:
         f(int(arguments[1]))
