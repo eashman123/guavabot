@@ -30,13 +30,11 @@ class Locate:
         self.bot_locations = set()
         self.bot_count = {v:0 for v in self.vertices+[self.client.home]}
         self.test_size = self.set_test_size(client.students)
-        epsilon = sqrt(log(client.students)/len(self.vertices))
         self.bot_resp = {}
 
         data = pickle.load(open("emw_data.p", "rb"))
-        self.epsilon = data["epsilon"] if data["epsilon"]!=0 else epsilon
+        self.epsilon = data["epsilon"] if data["epsilon"]!=0 else sqrt(log(client.students)/len(self.vertices))
         self.thresh= data["thresh"]
-
     def find(self):
         for vert in self.vertices:
             if vert in self.bot_locations:
@@ -96,7 +94,6 @@ class Locate:
     def choices(self, population, k=1, weights=None,):
         if weights==None:
             weights=list(self.all_students.values())
-            print(weights)
         a = set()
         while len(a)!=k:
             temp = random.choices(population, weights=weights, k=k-len(a))

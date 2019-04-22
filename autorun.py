@@ -35,7 +35,9 @@ def oprtimize_mw(solver):
         for ep in epsilon:
             for th in thresh:
                 data = {"thresh":th, "epsilon":ep}
+                pickle.dump(data, open("emw_data.p", "wb"))
                 m,s = test(30, solver=solver)
+                print(pickle.load(open("em_data.p", "rb" )))
                 performance[(ep,th)] = (m,s)
         best = max(performance.keys(), key = lambda k: performance[k][0])
         print("Best Values: " + str(best))
