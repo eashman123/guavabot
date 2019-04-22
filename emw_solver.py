@@ -2,6 +2,7 @@ from solver import Move
 import networkx as nx
 import random
 from math import log, sqrt
+import pickle
 
 def solve(client):
     client.end()
@@ -19,7 +20,7 @@ def solve(client):
     client.end()
 
 class Locate:
-    def __init__(self, client, thresh=0.4):
+    def __init__(self, client):
         self.client = client
         self.g = client.graph
         s = list(range(1, client.students + 1))
@@ -30,9 +31,11 @@ class Locate:
         self.bot_count = {v:0 for v in self.vertices+[self.client.home]}
         self.test_size = self.set_test_size(client.students)
         epsilon = sqrt(log(client.students)/len(self.vertices))
-        self.epsilon = epsilon
-        self.thresh= thresh
         self.bot_resp = {}
+
+        data = pickle.load(open("emw_data.p", "rb"))
+        self.epsilon = data["epsilon"] if data["epsilon"]!=0 else epsilon
+        self.thresh= data["thresh"]
 
     def find(self):
         for vert in self.vertices:
@@ -78,7 +81,7 @@ class Locate:
 
     def set_test_size(self, num_students, default=10):
         v = len(self.vertices)
-        return [min(10, num_students) for _ in range(v)]
+        # return [min(10, num_students) for _ in range(v)]
         interval = (num_students-min(10, num_students/2))/v
         c = min(10, num_students/2)
         l = []
