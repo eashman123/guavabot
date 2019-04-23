@@ -1,4 +1,5 @@
-import local_server, argparse
+from local_server import *
+import argparse
 
 if __name__=="__main__":
     instances = ["toronto_12_17"]
@@ -9,4 +10,6 @@ if __name__=="__main__":
         args = parser.parse_args()
 
         instance_name = args.instance_name
+
+        app.run(debug=True)
 
