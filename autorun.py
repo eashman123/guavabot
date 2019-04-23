@@ -30,17 +30,19 @@ def oprtimize_mw(solver):
     #https://wiki.python.org/moin/UsingPickle - have solver load values from file, edit file in between iterations
     if (solver=='emw_solver'):
         performance={}
-        epsilon = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
-        thresh = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+        epsilon = [0.6]
+        thresh = list(range(50,71))
+        thresh = [b/100 for b in thresh]
         for ep in epsilon:
             for th in thresh:
                 data = {"epsilon":ep, "thresh":th}
                 pickle.dump(data, open("emw_data.p", "wb"))
                 m,s = test(30, solver=solver)
-                print(pickle.load(open("em_data.p", "rb" )))
+                print(pickle.load(open("emw_data.p", "rb" )))
                 performance[(ep,th)] = (m,s)
         best = max(performance.keys(), key = lambda k: performance[k][0])
         data = {"epsilon":best[0], "thresh": best[1]}
+        pickle.dump(data, open("emw_data.p", "wb"))
         print("Best Values: " + str(best))
         print("Performance: " + str(performance[best]))
 
