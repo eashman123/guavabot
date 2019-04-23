@@ -2,7 +2,7 @@ from solver import Move
 import networkx as nx
 import random
 from math import log, sqrt
-import pickle
+from pickle import load
 
 def solve(client):
     client.end()
@@ -32,7 +32,7 @@ class Locate:
         self.test_size = self.set_test_size(client.students)
         self.bot_resp = {}
 
-        data = pickle.load(open("emw_data.p", "rb"))
+        data = load(open("emw_data.p", "rb"))
         self.epsilon = data["epsilon"] if data["epsilon"]!=0 else sqrt(log(client.students)/len(self.vertices))
         self.thresh= data["thresh"]
 		
