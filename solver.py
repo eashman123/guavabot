@@ -90,7 +90,7 @@ class Move:
         return rem
 
     def shared_path(self): #returns a list of remotes
-        s = approximation.steiner_tree(self.g, self.bot_locations + [self.home])
+        s = self.steiner()
         unop = []
         for vert in self.bot_locations:
             sh = nx.shortest_path(s, vert, self.home, weight="weight")
@@ -101,6 +101,11 @@ class Move:
             if unop[i] not in unop[i+1:]:
                 rem.append(unop[i])
         return rem
+
+    def steiner(self):
+        return approximation.steiner_tree(self.g, self.bot_locations + [self.home])
+    def shortest_path(self, source, target):
+        return nx.shortest_path(self.steiner(), source, target, weight="weight")
 
     def compare(self):
         shared = self.shared_cost()

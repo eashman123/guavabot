@@ -35,6 +35,7 @@ class Locate:
         data = pickle.load(open("emw_data.p", "rb"))
         self.epsilon = data["epsilon"] if data["epsilon"]!=0 else sqrt(log(client.students)/len(self.vertices))
         self.thresh= data["thresh"]
+		
     def find(self):
         for vert in self.vertices:
             if vert in self.bot_locations:
@@ -58,13 +59,13 @@ class Locate:
 
     def update_weights(self, u, student_resp):
         del self.bot_resp[u]
-        flag = self.run_remote(u)
+        flag = self.run_remote(u, False)
         for student, resp in student_resp.items():
             if resp != flag:
                 self.all_students[student] *= 1-self.epsilon
 
-    def run_remote(self, u):
-        v = self.cheapest_edge(u)[1]
+    def run_remote(self, u, flag=False):
+        v = self.cheapest_edge(u, flag)[1]
         resp = self.client.remote(u, v)
         flag = False
         if resp > 0:
@@ -79,7 +80,7 @@ class Locate:
 
     def set_test_size(self, num_students, default=10):
         v = len(self.vertices)
-        # return [min(10, num_students) for _ in range(v)]
+        return [min(default, num_students) for _ in range(v)]
         interval = (num_students-min(10, num_students/2))/v
         c = min(10, num_students/2)
         l = []
@@ -100,7 +101,11 @@ class Locate:
             a.update(temp)
         return list(a)
 
-    def cheapest_edge(self, vertex):
+    def cheapest_edge(self, vertex, flag=False):
+        if flag:
+            possible_locs = self.bot_locations|{vertex}
+            ant = Move(self.client, list(possible_locs)).shortest_path(vertex, self.client.home)
+            antweight = self.g.edges[ant[0], ant[1]]['weight']
         adj = self.g.edges(vertex)
         min=float('inf')
         edge=()
@@ -112,4 +117,7 @@ class Locate:
             if weight<min:
                 min = weight
                 edge = (u,v)
+        minweight = self.g.edges[edge[0], edge[1]]['weight']
+        if flag and antweight <= minweight:
+            edge = (ant[0], ant[1])
         return edge
