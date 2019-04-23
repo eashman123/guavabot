@@ -37,7 +37,7 @@ class Locate:
         # explain why we used math library
         self.proportion_of_testing = 0.82
         #self.epsilon = math.sqrt(math.log(self.num_students) / int(len(self.vertices) * self.proportion_of_testing))
-        self.epsilon = math.sqrt(math.log(self.num_students) / len(self.vertices)) #0.6
+        self.epsilon = 0.6 #math.sqrt(math.log(self.num_students) / len(self.vertices)) #0.6
 
         self.num_students_to_consider = min(10, int(self.num_students / 2))
         self.threshold_to_call_remote = 0.6
