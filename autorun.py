@@ -30,9 +30,9 @@ def oprtimize_mw(solver):
     #https://wiki.python.org/moin/UsingPickle - have solver load values from file, edit file in between iterations
     if solver=='emw_solver':
         performance={}
-        epsilon = [0.6]
-        thresh = list(range(10,12))
-        thresh = [b/10 for b in thresh]
+        epsilon = list(range(0, 10))
+        epsilon = [b/10 for b in epsilon]
+        thresh = [1.0]
         for ep in epsilon:
             for th in thresh:
                 data = {"epsilon":ep, "thresh":th}
