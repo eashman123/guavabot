@@ -3,7 +3,7 @@ from statistics import mean, stdev
 from math import sqrt
 import pickle
 
-def test(n, solver="solver", teval=False):
+def test(n, solver="solver", teval='True'):
     n = int(n)
     teval = True if teval=='True' else False
     scores=[]
@@ -28,11 +28,11 @@ def compare(total_tests, solver1, solver2):
 
 def oprtimize_mw(solver):
     #https://wiki.python.org/moin/UsingPickle - have solver load values from file, edit file in between iterations
-    if (solver=='emw_solver'):
+    if solver=='emw_solver':
         performance={}
         epsilon = [0.6]
-        thresh = list(range(50,71))
-        thresh = [b/100 for b in thresh]
+        thresh = list(range(10,12))
+        thresh = [b/10 for b in thresh]
         for ep in epsilon:
             for th in thresh:
                 data = {"epsilon":ep, "thresh":th}
