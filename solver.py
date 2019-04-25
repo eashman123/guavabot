@@ -82,41 +82,33 @@ class Move:
             self.client.remote(path[0], path[1])
 
     def naive_path(self): #returns a list of remotes
-        rem = []
-        for vert in self.bot_locations:
-            s = nx.shortest_path(self.g, vert, self.home, weight="weight")
-            for i in range(len(s)-1):
-                rem.append([s[i], s[i+1]])
-        return rem
+        return self.build_remote(self.g)
 
-    def shared_path(self): #returns a list of remotes
-        s = self.steiner()
-        unop = []
-        for vert in self.bot_locations:
-            sh = nx.shortest_path(s, vert, self.home, weight="weight")
-            for i in range(len(sh)-1):
-                unop.append([sh[i], sh[i+1]])
+    def steiner_path(self): #returns a list of remotes
+        s = approximation.steiner_tree(self.g, self.bot_locations + [self.home])
+        unop = self.build_remote(s)
         rem=[]
         for i in range(len(unop)):
             if unop[i] not in unop[i+1:]:
                 rem.append(unop[i])
         return rem
 
-    def steiner(self):
-        return approximation.steiner_tree(self.g, self.bot_locations + [self.home])
-    def shortest_path(self, source, target):
-        return nx.shortest_path(self.steiner(), source, target, weight="weight")
+    def build_remote(self, graph):
+        rem = []
+        for vert in self.bot_locations:
+            s = nx.shortest_path(graph, vert, self.home, weight="weight")
+            for i in range(len(s) - 1):
+                rem.append([s[i], s[i + 1]])
+        return rem
+
 
     def compare(self):
-        shared = self.shared_cost()
-        naive = self.naive_cost()
-        return self.shared_path if shared<naive else self.naive_path
+        pathers = [self.steiner_path, self.naive_path]
+        costs = {pather: self.path_cost(pather) for pather in pathers}
+        return min(costs, key = costs.get)
 
-    def naive_cost(self):
-        return sum([nx.shortest_path_length(self.g, vert, self.home, weight="weight") for vert in self.bot_locations])
-
-    def shared_cost(self):
-        rem = self.shared_path()
+    def path_cost(self, pather):
+        rem = pather()
         return sum([self.g[r[0]][r[1]]["weight"] for r in rem])
 
 

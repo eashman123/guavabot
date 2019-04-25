@@ -6,6 +6,10 @@ import pickle
 def test(n, solver="solver", teval='True'):
     n = int(n)
     teval = True if teval=='True' else False
+    if teval:
+        print("Dropping lowest 12%...")
+    else:
+        print("Scores Lives Matter")
     scores=[]
     for i in range(n):
         score = float(os.popen("python client.py --solver {}".format(solver)).readlines()[-1].split()[-1])
