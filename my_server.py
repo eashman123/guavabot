@@ -203,6 +203,12 @@ def abort(status_code, error, documentation_url):
     return response
 
 if __name__=="__main__":
+    '''
+    Command: python my_server.py n
+    The server will select n instances in a list and will loop them by list[i%n]
+    E.g.: python my_server.py 30 (Picks 30 instances and runs them repeatedly)
+    Useful for deterministically testing different hyperparameters
+    '''
     arguments = sys.argv
     if len(arguments)==2:
         numinst = int(arguments[1])

@@ -4,6 +4,13 @@ from math import sqrt
 import pickle
 
 def test(n, solver="solver", teval='True'):
+    '''
+    Runs n tests of solver
+    :param n: Number of tests
+    :param solver: Solver to sun
+    :param teval: True if you want to drop lowest 12%
+    :return: Tuple (Average Score, S.D. of Scores)
+    '''
     n = int(n)
     teval = True if teval=='True' else False
     if teval:
@@ -23,6 +30,13 @@ def test(n, solver="solver", teval='True'):
     return mean(scores), stdev(scores)
 
 def compare(total_tests, solver1, solver2):
+    '''
+    Compares two different solvers
+    :param total_tests: Number of tests to run. Will run total_tests/2 tests for each solver
+    :param solver1: Name of one solver
+    :param solver2: Name of other solver
+    :return: None; prints out Difference in average score and S.D.
+    '''
     total_tests = int(total_tests)
     mean1, stdev1 = test(total_tests//2, solver1)
     mean2, stdev2 = test(total_tests//2, solver2)
@@ -31,8 +45,12 @@ def compare(total_tests, solver1, solver2):
     print("D Standard Deviation: " + str(dstdev))
 
 def oprtimize_mw(solver):
-    #https://wiki.python.org/moin/UsingPickle - have solver load values from file, edit file in between iterations
-    if solver=='emw_solver2':
+    '''
+    Optimize solver
+    :param solver: Name of solver
+    :return: None; prints out best values in test
+    '''
+    if solver=='emw_solver':
         performance={}
         data = {"epsilon": 0, "test_size" : 20}
         thresh = [b/10 for b in range(5,11)]
@@ -52,6 +70,12 @@ def oprtimize_mw(solver):
         pass
 
 if __name__=="__main__":
+    '''
+    Command: python autorun.py function *args
+    This runs the function with the associated arguments.
+    E.g. python autorun.py test 30 emw_solver
+    This runs 30 tests of emw_solver
+    '''
     arguments = sys.argv
     mapping = {'test':test, 'compare':compare, 'optimize_mw':oprtimize_mw}
     f = mapping[arguments.pop(1)]
