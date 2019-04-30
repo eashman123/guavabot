@@ -3,7 +3,6 @@ import random
 from math import log, sqrt
 from pickle import load
 
-
 def solve(client):
     client.end()
     client.start()
@@ -19,7 +18,6 @@ def solve(client):
     # Our code end
     client.end()
 
-
 class Locate:
     def __init__(self, client):
         self.client = client
@@ -30,12 +28,12 @@ class Locate:
         self.vertices = list(range(1, client.home)) + list(range(client.home + 1, client.v + 1))  # non home vertices
         self.bot_locations = set()
         self.bot_count = {v: 0 for v in self.vertices + [self.client.home]}
-        self.test_size = self.set_test_size(client.students)
         self.bot_resp = {}
 
         data = load(open("emw_data.p", "rb"))
         self.epsilon = data["epsilon"] if data["epsilon"] != 0 else sqrt(log(client.students) / len(self.vertices))
         self.thresh = data["thresh"]
+        self.test_size = min(data["test_size"], client.students)
 
     def find(self):
         for vert in self.vertices:
@@ -51,10 +49,9 @@ class Locate:
         return list(self.bot_locations)
 
     def scout(self, vert):
-        test_size = self.get_test_size()
-        r = self.client.scout(vert, self.choices(list(self.all_students.keys()), test_size))
+        r = self.client.scout(vert, self.choices(list(self.all_students.keys()), self.test_size))
         self.bot_resp[vert] = list(r.values()).count(True)
-        if self.bot_resp[vert] > int(self.thresh * test_size):
+        if self.bot_resp[vert] > int(self.thresh * self.test_size):
             self.update_weights(vert, r)
 
     def update_weights(self, u, student_resp):
@@ -77,20 +74,6 @@ class Locate:
                 self.num_bots -= resp - self.bot_count[u]
             self.bot_count[u] = 0
             self.bot_count[v] += resp
-
-    def set_test_size(self, num_students, default=10):
-        v = len(self.vertices)
-        return [min(default, num_students) for _ in range(v)]
-        interval = (num_students - min(10, num_students / 2)) / v
-        c = min(10, num_students / 2)
-        l = []
-        for _ in range(v):
-            l.append(round(c))
-            c += interval
-        return l
-
-    def get_test_size(self):
-        return self.test_size.pop()
 
     def choices(self, population, k=1, weights=None):
         if weights == None:

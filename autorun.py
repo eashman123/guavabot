@@ -13,7 +13,7 @@ def test(n, solver="solver", teval='True'):
     scores=[]
     for i in range(n):
         score = float(os.popen("python client.py --solver {}".format(solver)).readlines()[-1].split()[-1])
-        print(score)
+        print("Run " + str(i+1) + ": " + str(score))
         scores.append(score)
     evaluated_scores = sorted(scores)[int(len(scores)*.12):]
     if teval:
@@ -32,22 +32,20 @@ def compare(total_tests, solver1, solver2):
 
 def oprtimize_mw(solver):
     #https://wiki.python.org/moin/UsingPickle - have solver load values from file, edit file in between iterations
-    if solver=='emw_solver':
+    if solver=='emw_solver2':
         performance={}
-        epsilon = list(range(0, 10))
-        epsilon = [b/10 for b in epsilon]
-        thresh = [1.0]
-        for ep in epsilon:
-            for th in thresh:
-                data = {"epsilon":ep, "thresh":th}
-                pickle.dump(data, open("emw_data.p", "wb"))
-                m,s = test(30, solver=solver)
-                print(pickle.load(open("emw_data.p", "rb" )))
-                performance[(ep,th)] = (m,s)
+        data = {"epsilon": 0, "test_size" : 20}
+        thresh = [b/10 for b in range(5,11)]
+        for i in thresh:
+            data["thresh"] = i
+            pickle.dump(data, open("emw_data.p", "wb"))
+            m,s = test(100, solver=solver)
+            print(pickle.load(open("emw_data.p", "rb" )))
+            performance[i] = (m,s)
         best = max(performance.keys(), key = lambda k: performance[k][0])
-        data = {"epsilon":best[0], "thresh": best[1]}
+        data = data = {"epsilon": 0.6, "test_size": 20, "thresh": best}
         pickle.dump(data, open("emw_data.p", "wb"))
-        print("Best Values: " + str(best))
+        print("Best Values: " + str(data))
         print("Performance: " + str(performance[best]))
 
     if solver=='mw_solver':
