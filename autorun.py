@@ -29,20 +29,19 @@ def test(n, solver="solver", teval='True'):
     print("Standard Deviation: " + str(stdev(scores)))
     return mean(scores), stdev(scores)
 
-def compare(total_tests, solver1, solver2):
+def compare(n, *args):
     '''
-    Compares two different solvers
-    :param total_tests: Number of tests to run. Will run total_tests/2 tests for each solver
-    :param solver1: Name of one solver
-    :param solver2: Name of other solver
-    :return: None; prints out Difference in average score and S.D.
+    Compares n different solvers
+    :param n: Number of tests to run for each solver
+    :param args: Names of solver
+    :return: None; prints out score of best Solver
     '''
-    total_tests = int(total_tests)
-    mean1, stdev1 = test(total_tests//2, solver1)
-    mean2, stdev2 = test(total_tests//2, solver2)
-    dstdev = sqrt(abs(pow(stdev1,2)-pow(stdev2, 2)))
-    print("D Average: " + str(mean1-mean2))
-    print("D Standard Deviation: " + str(dstdev))
+    total_tests = int(n)
+    scores= {solver: test(n, solver) for solver in args}
+    best = max(scores, key=lambda s: scores[s][0])
+    print("Best Solver: " + best)
+    print("Average: " + str(scores[best][0]))
+    print("Standard Deviation: " + str(scores[best][1]))
 
 def oprtimize_mw(solver):
     '''
@@ -76,12 +75,7 @@ if __name__=="__main__":
     E.g. python autorun.py test 30 emw_solver
     This runs 30 tests of emw_solver
     '''
-    arguments = sys.argv
+    arguments = sys.argv[1:]
     mapping = {'test':test, 'compare':compare, 'optimize_mw':oprtimize_mw}
-    f = mapping[arguments.pop(1)]
-    if len(arguments)==2:
-        f(arguments[1])
-    elif len(arguments)==3:
-        f(arguments[1], arguments[2])
-    elif len(arguments)==4:
-        f(arguments[1], arguments[2], arguments[3])
+    f = mapping[arguments.pop(0)]
+    f(*arguments)
