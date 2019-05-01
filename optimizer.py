@@ -49,8 +49,8 @@ def optimize_mw(solver):
                 for t in test_size:
                     data = {"epsilon": ep, "thresh": th, "test_size": t}
                     pickle.dump(data, open("emw_data.p", "wb"))
-                    m, s = test(n, solver=solver)
                     print(pickle.load(open("emw_data.p", "rb")))
+                    m, s = test(n, solver=solver)
                     performance[(ep,th,t)] = (m, s)
         p.terminate()
         ep,th,t = max(performance.keys(), key = lambda k: performance[k][0])
