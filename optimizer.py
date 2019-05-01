@@ -69,5 +69,6 @@ def optimize_mw(solver):
 
     if solver=='mw_solver':
         pass
+    input('ha')
 
 optimize_mw("emw_solver")
