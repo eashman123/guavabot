@@ -36,17 +36,13 @@ def optimize_mw(solver):
     '''
     if solver=='emw_solver':
         performance={}
-        n = 10
+        n = 100
         p = Process(target=run_server, args=(n,))
         p.start()
 
         epsilon = [i/10 for i in range(0,11)]
-        thresh = [i/10 for i in range(0,11)]
+        thresh = [i/10 for i in range(5,11)]
         test_size = list(range(10,41))
-
-        epsilon = [i/10 for i in range(0,1)]
-        thresh = [i/10 for i in range(9,11)]
-        test_size = [5,10]
 
         for ep in epsilon:
             for th in thresh:
