@@ -4,7 +4,7 @@ from multiprocessing import Process
 import pickle
 
 def run_server(n):
-    os.system("python my_server.py " + str(n))
+    os.popen("python my_server.py {}".format(n))
 
 def test(n, solver="solver", teval='True'):
     '''
