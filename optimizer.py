@@ -19,10 +19,13 @@ def test(n, solver="solver", teval='True'):
     scores=[]
     for i in range(n):
         score = float(os.popen("python client.py --solver {}".format(solver)).readlines()[-1].split()[-1])
+        print("Run " + str(i+1) + ": " + str(score))
         scores.append(score)
     evaluated_scores = sorted(scores)[int(len(scores)*.12):]
     if teval:
         scores=evaluated_scores
+    print("Average: " + str(mean(scores)))
+    print("Standard Deviation: " + str(stdev(scores)))
     return mean(scores), stdev(scores)
 
 def optimize_mw(solver):
@@ -62,6 +65,7 @@ def optimize_mw(solver):
 
     if solver=='mw_solver':
         pass
-    input('ha')
+    while(True):
+        pass
 
 optimize_mw("emw_solver")
