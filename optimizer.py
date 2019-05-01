@@ -40,21 +40,32 @@ def optimize_mw(solver):
     '''
     if solver=='emw_solver':
         performance={}
-        data = {"epsilon": 0.6, "thresh" : 1.0}
-        p = Process(target=run_server, args=(100,))
+        n = 10
+        p = Process(target=run_server, args=(n,))
         p.start()
-        for i in range(5,41):
-            data["test_size"] = i
-            pickle.dump(data, open("emw_data.p", "wb"))
-            m,s = test(100, solver=solver)
-            print(pickle.load(open("emw_data.p", "rb" )))
-            performance[i] = (m,s)
+
+        epsilon = [i/10 for i in range(0,11)]
+        thresh = [i/10 for i in range(0,11)]
+        test_size = list(range(10,41))
+
+        epsilon = [i/10 for i in range(0,1)]
+        thresh = [i/10 for i in range(9,11)]
+        test_size = [5,10]
+
+        for ep in epsilon:
+            for th in thresh:
+                for t in test_size:
+                    data = {"epsilon": ep, "thresh": th, "test_size": t}
+                    pickle.dump(data, open("emw_data.p", "wb"))
+                    m, s = test(n, solver=solver)
+                    print(pickle.load(open("emw_data.p", "rb")))
+                    performance[(ep,th,t)] = (m, s)
         p.terminate()
-        best = max(performance.keys(), key = lambda k: performance[k][0])
-        data = data = {"epsilon": 0.6, "test_size": best, "thresh": 1.0}
+        ep,th,t = max(performance.keys(), key = lambda k: performance[k][0])
+        data = {"epsilon": ep, "thresh": th, "test_size": t}
         pickle.dump(data, open("emw_data.p", "wb"))
         print("Best Values: " + str(data))
-        print("Performance: " + str(performance[best]))
+        print("Performance: " + str(performance[(ep, th, t)]))
 
     if solver=='mw_solver':
         pass

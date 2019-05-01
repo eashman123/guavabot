@@ -57,9 +57,8 @@ def optimize_mw(solver):
             m,s = test(100, solver=solver)
             print(pickle.load(open("emw_data.p", "rb" )))
             performance[i] = (m,s)
-        p.terminate()
         best = max(performance.keys(), key = lambda k: performance[k][0])
-        data = data = {"epsilon": 0.6, "test_size": best, "thresh": 1.0}
+        data = {"epsilon": 0.6, "test_size": best, "thresh": 1.0}
         pickle.dump(data, open("emw_data.p", "wb"))
         print("Best Values: " + str(data))
         print("Performance: " + str(performance[best]))
