@@ -44,7 +44,7 @@ def optimize_mw(solver):
         thresh = [i/10 for i in range(5,11)]
         test_size = list(range(10,41))
         epsilon = [0]
-        thresh = [0.5, 1.0]
+        thresh = [0.1, 1.0]
         test_size = [10]
         for ep in epsilon:
             for th in thresh:
