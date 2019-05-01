@@ -1,6 +1,5 @@
 import os, sys
 from statistics import mean, stdev
-from math import sqrt
 import pickle
 
 def test(n, solver="solver", teval='True'):
@@ -43,7 +42,7 @@ def compare(n, *args):
     print("Average: " + str(scores[best][0]))
     print("Standard Deviation: " + str(scores[best][1]))
 
-def oprtimize_mw(solver):
+def optimize_mw(solver):
     '''
     Optimize solver
     :param solver: Name of solver
@@ -51,16 +50,16 @@ def oprtimize_mw(solver):
     '''
     if solver=='emw_solver':
         performance={}
-        data = {"epsilon": 0, "test_size" : 20}
-        thresh = [b/10 for b in range(5,11)]
-        for i in thresh:
-            data["thresh"] = i
+        data = {"epsilon": 0.6, "thresh" : 1.0}
+        for i in range(10,21):
+            data["test_size"] = i
             pickle.dump(data, open("emw_data.p", "wb"))
             m,s = test(100, solver=solver)
             print(pickle.load(open("emw_data.p", "rb" )))
             performance[i] = (m,s)
+        p.terminate()
         best = max(performance.keys(), key = lambda k: performance[k][0])
-        data = data = {"epsilon": 0.6, "test_size": 20, "thresh": best}
+        data = data = {"epsilon": 0.6, "test_size": best, "thresh": 1.0}
         pickle.dump(data, open("emw_data.p", "wb"))
         print("Best Values: " + str(data))
         print("Performance: " + str(performance[best]))
@@ -76,6 +75,6 @@ if __name__=="__main__":
     This runs 30 tests of emw_solver
     '''
     arguments = sys.argv[1:]
-    mapping = {'test':test, 'compare':compare, 'optimize_mw':oprtimize_mw}
+    mapping = {'test':test, 'compare':compare, 'optimize_mw':optimize_mw}
     f = mapping[arguments.pop(0)]
     f(*arguments)
