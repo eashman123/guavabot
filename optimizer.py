@@ -4,7 +4,7 @@ from multiprocessing import Process
 import pickle
 
 def run_server(n):
-    os.popen("python my_server.py {}".format(n))
+    os.system("python my_server.py {}".format(n))
 
 def test(n, solver="solver", teval='True'):
     '''
@@ -16,20 +16,13 @@ def test(n, solver="solver", teval='True'):
     '''
     n = int(n)
     teval = True if teval=='True' else False
-    if teval:
-        print("Dropping lowest 12%...")
-    else:
-        print("Scores Lives Matter")
     scores=[]
     for i in range(n):
         score = float(os.popen("python client.py --solver {}".format(solver)).readlines()[-1].split()[-1])
-        print("Run " + str(i+1) + ": " + str(score))
         scores.append(score)
     evaluated_scores = sorted(scores)[int(len(scores)*.12):]
     if teval:
         scores=evaluated_scores
-    print("Average: " + str(mean(scores)))
-    print("Standard Deviation: " + str(stdev(scores)))
     return mean(scores), stdev(scores)
 
 def optimize_mw(solver):
