@@ -40,7 +40,7 @@ def optimize_mw(solver):
         p = Process(target=run_server, args=(n,))
         p.start()
 
-        epsilon = [i/10 for i in range(0,11)]
+        epsilon = [0]
         thresh = [i/10 for i in range(5,11)]
         test_size = list(range(10,41))
         for ep in epsilon:
