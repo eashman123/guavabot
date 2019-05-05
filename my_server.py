@@ -206,6 +206,17 @@ def abort(status_code, error, documentation_url):
     response.status_code = status_code
     return response
 
+def poll_cities(n):
+    cities = ["toronto", "singapore", "telaviv"]
+    eq = n//3
+    citylist=[]
+    for city in cities:
+        citylist+=[city]*eq
+    for _ in range(n%3):
+        citylist.append(random.choice(cities))
+    return citylist
+
+
 if __name__=="__main__":
     '''
     Command: python my_server.py n
@@ -218,8 +229,8 @@ if __name__=="__main__":
         numinst = int(arguments[1])
     else:
         numinst = 30
-    cities = ["toronto", "singapore", "telaviv"]
-    instances = [random.choice(cities) + "_" + str(random.choice(range(30))) + "_" + str(random.choice(range(20)))
+    citylist = poll_cities(numinst)
+    instances = [citylist.pop(0) + "_" + str(random.choice(range(30))) + "_" + str(random.choice(range(20)))
                  for _ in range(numinst)]
     pointer=0
 
