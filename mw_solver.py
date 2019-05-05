@@ -39,7 +39,7 @@ class Locate:
         #self.epsilon = math.sqrt(math.log(self.num_students) / int(len(self.vertices) * self.proportion_of_testing))
         self.epsilon = math.sqrt(math.log(self.num_students) / len(self.vertices)) #0.6
 
-        self.num_students_to_consider = min(10, int(self.num_students / 2))
+        self.num_students_to_consider = min(20, int(self.num_students / 2))
         self.threshold_to_call_remote = 0.6
 
     # should we implement a dictionary such that when a student has been wrong many times, we start to trust them
