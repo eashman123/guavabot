@@ -40,12 +40,24 @@ class Locate:
         #self.epsilon = 0.6
         self.epsilon = math.sqrt(math.log(self.num_students) / len(self.vertices)) #0.6
 
-        self.num_students_to_consider = min(10, int(self.num_students / 2))
+        self.num_students_to_consider = min(10, self.num_students / 2)
         self.threshold_to_call_remote = 0.6
         self.best_vertices = {}
 
     # should we implement a dictionary such that when a student has been wrong many times, we start to trust them
     # since they can only be wrong so many times? This only matters if we look at every vertex
+
+
+    def generate_random_students(self, n):
+        n = int(n)
+
+        lst = []
+        for i in range(n):
+            lst += [random.randint(min(self.all_students), max(self.all_students))]
+
+        print("LST", lst)
+        return lst
+
 
     def find(self):
         #scouted = self.scouting()
@@ -56,11 +68,24 @@ class Locate:
         if self.weights == {} or self.distribution == {}:
             self.weights, self.distribution = self.initialize_mw()
 
+        num_vertices = len(self.vertices)
+        count = 0
         for u in self.vertices:
+            count += 1
             # dictionary of student ID to booleans --> scout
-            scouting = self.client.scout(u, self.all_students)
-            self.scouting_data[u] = scouting
-            self.best_vertices[u] = list(scouting.values()).count(True)
+            if (count >= 0.82 * num_vertices):
+                print("SCOUTING")
+                scouting = self.client.scout(u, self.generate_random_students(self.num_students * 0.75))
+                self.scouting_data[u] = scouting
+                self.best_vertices[u] = int(list(scouting.values()).count(True) * (4 / 3))
+            
+
+            else:
+                scouting = self.client.scout(u, self.all_students)
+                print("SCOUTING ELSE", scouting)
+                self.scouting_data[u] = scouting
+                self.best_vertices[u] = list(scouting.values()).count(True)
+
 
         self.best_vertices = sorted(self.best_vertices, key = self.best_vertices.get, 
             reverse = True)
