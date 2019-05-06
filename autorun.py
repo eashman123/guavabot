@@ -21,7 +21,7 @@ def test(n, solver="solver", teval='True'):
         score = float(os.popen("python client.py --solver {}".format(solver)).readlines()[-1].split()[-1])
         print("Run " + str(i+1) + ": " + str(score))
         scores.append(score)
-    evaluated_scores = sorted(scores)[int(len(scores)*.12):]
+    evaluated_scores = sorted(scores)[int(len(scores)*.13):]
     if teval:
         scores=evaluated_scores
     print("Average: " + str(mean(scores)))
