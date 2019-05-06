@@ -208,11 +208,11 @@ def abort(status_code, error, documentation_url):
 
 def poll_cities(n):
     cities = ["toronto", "singapore", "telaviv"]
-    eq = n//3
+    eq = n//len(cities)
     citylist=[]
     for city in cities:
         citylist+=[city]*eq
-    for _ in range(n%3):
+    for _ in range(n%len(cities)):
         citylist.append(random.choice(cities))
     return citylist
 
