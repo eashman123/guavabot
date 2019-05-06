@@ -13,7 +13,7 @@ def test(n, solver="solver", teval='True'):
     n = int(n)
     teval = True if teval=='True' else False
     if teval:
-        print("Dropping lowest 12%...")
+        print("Dropping lowest 13%...")
     else:
         print("Scores Lives Matter")
     scores=[]
@@ -50,15 +50,18 @@ def optimize_mw(solver):
     '''
     if solver=='emw_solver':
         performance={}
-        data = {"epsilon": 0.6, "thresh" : 1.0}
-        for i in range(10,21):
-            data["test_size"] = i
-            pickle.dump(data, open("emw_data.p", "wb"))
-            m,s = test(100, solver=solver)
-            print(pickle.load(open("emw_data.p", "rb" )))
-            performance[i] = (m,s)
+        data = {}
+        epsilon = [i/100 for i in range(20,22)]
+        test_sizes = [40]
+        for ep in epsilon:
+            for test_size in test_sizes:
+                data = {'epsilon':ep, 'test_size':test_size}
+                pickle.dump(data, open("emw_data.p", "wb"))
+                m,s = test(30, solver=solver)
+                print(pickle.load(open("emw_data.p", "rb" )))
+                performance[ep,test_size] = (m,s)
         best = max(performance.keys(), key = lambda k: performance[k][0])
-        data = {"epsilon": 0.6, "test_size": best, "thresh": 1.0}
+        data = {'epsilon':best[0], 'test_size': best[1]}
         pickle.dump(data, open("emw_data.p", "wb"))
         print("Best Values: " + str(data))
         print("Performance: " + str(performance[best]))
