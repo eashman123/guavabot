@@ -24,16 +24,19 @@ class Locate:
         self.g = client.graph
         s = list(range(1, client.students + 1))
         self.all_students = {st: 1 for st in s}
+        self.num_students = client.students
         self.num_bots = client.bots
         self.vertices = list(range(1, client.home)) + list(range(client.home + 1, client.v + 1))  # non home vertices
         self.bot_locations = set()
         self.bot_count = {v: 0 for v in self.vertices + [self.client.home]}
         self.bot_resp = {}
 
-        data = load(open("emw_data.p", "rb"))
-        self.epsilon = data["epsilon"] if data["epsilon"] != 0 else sqrt(log(client.students) / len(self.vertices))
-        self.thresh = data["thresh"]
-        self.test_size = min(data["test_size"], client.students)
+
+        # data = load(open("emw_data.p", "rb"))
+        # self.epsilon = data["epsilon"] if data["epsilon"] != 0 else sqrt(log(client.students) / len(self.vertices))
+        # self.test_size = client.students
+        self.epsilon = 0.17
+        self.test_size = client.students
 
     def find(self):
         for vert in self.vertices:
@@ -41,25 +44,35 @@ class Locate:
                 continue
             if self.num_bots != 0:
                 self.scout(vert)
-        scouted = sorted(self.bot_resp, key=self.bot_resp.get, reverse=True)
-        for u in scouted:
-            if self.num_bots == 0:
-                break
-            self.run_remote(u)
+
+        while self.num_bots!=0:
+            u = max(self.bot_resp, key = lambda u: self.chance(u))
+            student_resp = self.bot_resp.pop(u)
+            obs = self.run_remote(u)
+            self.update_weights(obs, student_resp)
+
         return list(self.bot_locations)
 
     def scout(self, vert):
-        r = self.client.scout(vert, self.choices(list(self.all_students.keys()), self.test_size))
-        self.bot_resp[vert] = list(r.values()).count(True)
-        if self.bot_resp[vert] > int(self.thresh * self.test_size):
-            self.update_weights(vert, r)
+        r = self.client.scout(vert, list(range(1, self.test_size+1)))
+        self.bot_resp[vert] = r
 
-    def update_weights(self, u, student_resp):
-        del self.bot_resp[u]
-        flag = self.run_remote(u)
+    def update_weights(self, obs, student_resp):
         for student, resp in student_resp.items():
-            if resp != flag:
+            if resp != obs:
                 self.all_students[student] *= 1 - self.epsilon
+        factor = self.num_students/sum(self.all_students.values())
+        for student in self.all_students:
+            self.all_students[student]*=factor
+
+    def chance(self,u):
+        student_resp=self.bot_resp[u]
+        score=0
+        val={False:-1, True:1}
+        for student, resp in student_resp.items():
+            score+=val[resp]*self.all_students[student]
+        return score
+
 
     def run_remote(self, u):
         v = self.cheapest_edge(u)[1]
@@ -74,15 +87,7 @@ class Locate:
                 self.num_bots -= resp - self.bot_count[u]
             self.bot_count[u] = 0
             self.bot_count[v] += resp
-
-    def choices(self, population, k=1, weights=None):
-        if weights == None:
-            weights = list(self.all_students.values())
-        a = set()
-        while len(a) != k:
-            temp = random.choices(population, weights=weights, k=k - len(a))
-            a.update(temp)
-        return list(a)
+        return flag
 
     def cheapest_edge(self, vertex):
         adj = self.g.edges(vertex)
