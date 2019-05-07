@@ -36,16 +36,65 @@ class Locate:
         #important stats choices
         # explain why we used math library
         self.proportion_of_testing = 0.82
-        #self.epsilon = math.sqrt(math.log(self.num_students) / int(len(self.vertices) * self.proportion_of_testing))
+        
+        #self.epsilon = 0.6
         self.epsilon = math.sqrt(math.log(self.num_students) / len(self.vertices)) #0.6
 
-        self.num_students_to_consider = min(20, int(self.num_students / 2))
+        self.num_students_to_consider = min(10, int(self.num_students / 2))
         self.threshold_to_call_remote = 0.6
+        self.best_vertices = {}
 
     # should we implement a dictionary such that when a student has been wrong many times, we start to trust them
     # since they can only be wrong so many times? This only matters if we look at every vertex
+
     def find(self):
-        scouted = self.scouting()
+        #scouted = self.scouting()
+        bots_left = self.num_bots
+        bot_locs = set()
+        bot_count = {v:0 for v in self.vertices+[self.client.home]}
+
+        if self.weights == {} or self.distribution == {}:
+            self.weights, self.distribution = self.initialize_mw()
+
+        for u in self.vertices:
+            # dictionary of student ID to booleans --> scout
+            scouting = self.client.scout(u, self.all_students)
+            self.scouting_data[u] = scouting
+            self.best_vertices[u] = list(scouting.values()).count(True)
+
+        self.best_vertices = sorted(self.best_vertices, key = self.best_vertices.get, 
+            reverse = True)
+
+        for u in self.best_vertices:
+            v = self.cheapest_edge(u)[1]
+
+            resp = self.client.remote(u, v)
+            if resp>0:
+                bot_locs.add(v)
+                if u in bot_locs:
+                    bot_locs.remove(u)
+                if resp>bot_count[u]:
+                    bots_left-=resp-bot_count[u]
+                bot_count[u]=0
+                bot_count[v]+=resp
+
+            if bots_left==0:
+                break
+
+            loss_dict = self.update_curr_loss(resp, self.scouting_data[u])
+            self.update_mw(loss_dict)
+
+        return list(bot_locs)
+
+
+
+
+
+
+
+
+    def find_v2(self):
+        #scouted = self.scouting()
         bots_left = self.num_bots
         bot_locs = set()
         bot_count = {v:0 for v in self.vertices+[self.client.home]}
@@ -106,9 +155,9 @@ class Locate:
 
         return list(bot_locs)
 
-    def update_curr_loss(self, bots_moved, vertex):
+    def update_curr_loss(self, bots_moved, vertex_data):
         loss_dict = {}
-        vertex_data = self.scouting_data.get(vertex)
+        #vertex_data = self.scouting_data.get(vertex)
 
         if bots_moved == 0:
             for student in vertex_data.keys():
@@ -167,18 +216,21 @@ class Locate:
 
         for key in loss_dict.keys():
             #take care of 0^0 case
+            old_weight = self.weights[key]
+
             new_weight = float(self.weights.get(key) * ((1 - self.epsilon) ** loss_dict.get(key)))
             self.weights[key] = new_weight
 
+            sum_of_weights -= old_weight
             sum_of_weights += new_weight
 
 
         # choose statistic --> sum_of_weights as sum of total weights or of only for students used that round>
         #sum_of_weights = sum(self.weights
 
-        for key in loss_dict.keys():
-            new_proportion = float(self.weights.get(key) / sum_of_weights)
-            self.distribution[key] = new_proportion
+        #for key in loss_dict.keys():
+        #    new_proportion = float(self.weights.get(key) / sum_of_weights)
+        #    self.distribution[key] = new_proportion
 
 
 
