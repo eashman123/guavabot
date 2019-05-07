@@ -33,8 +33,7 @@ class Locate:
 
 
         # data = load(open("emw_data.p", "rb"))
-        # self.epsilon = data["epsilon"] if data["epsilon"] != 0 else sqrt(log(client.students) / len(self.vertices))
-        # self.test_size = client.students
+        # self.epsilon = data["epsilon"] if data["epsilon"] != 0 else sqrt(log(client.students) / len(self.vertices))        self.epsilon = 0.17
         self.epsilon = 0.17
         self.test_size = client.students
 
